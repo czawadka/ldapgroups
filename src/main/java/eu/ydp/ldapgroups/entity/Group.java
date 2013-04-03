@@ -11,7 +11,7 @@ import java.util.Set;
         name = "`group`",
         uniqueConstraints = @UniqueConstraint(columnNames = "name")
 )
-public class Group {
+public class Group implements Cloneable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     long id;
@@ -80,16 +80,22 @@ public class Group {
                 '}';
     }
 
+    @Override
+    public Group clone() {
+        try {
+            return (Group)super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     static public class Builder {
         Group group;
 
-        public Builder(Group group) {
-            this.group = group;
+        public Builder(Group initialData) {
+            this.group = initialData;
 
-            Date now = new Date();
-            dateModified(now);
-            if (group.dateCreated==null)
-                dateCreated(now);
+            dateModified(new Date());
         }
 
         public Builder() {
@@ -113,11 +119,9 @@ public class Group {
             return this;
         }
         public Builder dateModified(Date date) {
+            if (group.dateCreated==null)
+                group.dateCreated = date;
             group.dateModified = date;
-            return this;
-        }
-        protected Builder dateCreated(Date date) {
-            group.dateCreated = date;
             return this;
         }
         public Builder dateModified() {

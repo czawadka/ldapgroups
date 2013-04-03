@@ -27,6 +27,7 @@ public class GroupResource {
     @POST
     @Path("/group")
     public Group createGroup(Group group) {
+        group = new Group.Builder(group).dateModified().build();
         return groupDao.create(group);
     }
 
@@ -40,7 +41,7 @@ public class GroupResource {
     @Path("/group/{name}/members")
     public Group updateGroupMembers(@PathParam("name") String name, Set<String> members) {
         Group group = getByNameOrNotFound(name);
-        Group mergeGroup = new Group(group.getId(), group.getName(), members, new Date(), group.getDateSynchronized());
+        Group mergeGroup = new Group.Builder(group).members(members).dateModified().build();
         return groupDao.merge(mergeGroup);
     }
 
