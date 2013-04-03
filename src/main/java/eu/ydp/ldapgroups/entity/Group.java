@@ -1,10 +1,10 @@
 package eu.ydp.ldapgroups.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import javax.persistence.*;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Table(
@@ -14,7 +14,8 @@ import java.util.Set;
 public class Group implements Cloneable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    long id;
+    @JsonIgnore
+    Long id;
 
     @Column(name = "name", nullable = false)
     String name;
@@ -33,20 +34,20 @@ public class Group implements Cloneable {
     @Column(name = "date_synchronized", nullable = true)
     Date dateSynchronized;
 
-    public Group(long id, String name, Set<String> members, Date dateModified, Date dateSynchronized) {
+    public Group(Long id, String name, Set<String> members, Date dateModified, Date dateSynchronized) {
         this.id = id;
         this.name = name;
-        this.members = members;
+        this.members = members!=null ? members : Collections.EMPTY_SET;
         this.dateModified = dateModified;
         this.dateSynchronized = dateSynchronized;
     }
 
     public Group() {
-        this(0, null, null, null, null);
+        this(null, null, null, null, null);
     }
 
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
@@ -94,8 +95,6 @@ public class Group implements Cloneable {
 
         public Builder(Group initialData) {
             this.group = initialData;
-
-            dateModified(new Date());
         }
 
         public Builder() {
@@ -106,27 +105,42 @@ public class Group implements Cloneable {
             group.name = name;
             return this;
         }
+
         public Builder members(Set<String> members) {
             group.members = members;
             return this;
         }
+
         public Builder members(String... members) {
             group.members = new HashSet<String>(Arrays.asList(members));
             return this;
         }
+
         public Builder dateSynchronizedFromModified() {
             group.dateSynchronized = group.getDateModified();
             return this;
         }
+
         public Builder dateModified(Date date) {
             if (group.dateCreated==null)
                 group.dateCreated = date;
             group.dateModified = date;
             return this;
         }
+
+        public Builder dateModified(long timestamp) {
+            return dateModified(new Date(timestamp));
+        }
+
         public Builder dateModified() {
             return dateModified(new Date());
         }
+
+        public Builder id(long id) {
+            group.id = id;
+            return this;
+        }
+
         public Group build() {
             return group;
         }

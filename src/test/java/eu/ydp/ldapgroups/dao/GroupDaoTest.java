@@ -41,38 +41,8 @@ public class GroupDaoTest extends HibernateInitializer {
     }
 
     @Test
-    public void shouldDateCreatedBeUpdatedOnCreate() throws Exception {
-        Date now = new Date();
-        Group group = new Group.Builder().name("group1").build();
-        group = groupDao.create(group);
-
-        MatcherAssert.assertThat(group.getDateCreated(), Matchers.greaterThanOrEqualTo(now));
-    }
-
-    @Test
-    public void shouldDateModifiedBeUpdatedOnCreate() throws Exception {
-        Date now = new Date();
-        Group group = new Group.Builder().name("group1").build();
-        group = groupDao.create(group);
-
-        MatcherAssert.assertThat(group.getDateModified(), Matchers.greaterThanOrEqualTo(now));
-    }
-
-    @Test
-    public void shouldDateModifiedBeUpdatedOnUpdate() throws Exception {
-        Group group = new Group.Builder().name("group1").build();
-        group = groupDao.create(group);
-        Thread.sleep(5);
-        Date now = new Date();
-        group = new Group.Builder(group).name("group2").build();
-        group = groupDao.merge(group);
-
-        MatcherAssert.assertThat(group.getDateModified(), Matchers.greaterThanOrEqualTo(now));
-    }
-
-    @Test
-    public void shouldStoredBeNonZero() throws Exception {
-        Group group = new Group.Builder().name("group1").build();
+    public void shouldStoredIdBeNonZero() throws Exception {
+        Group group = new Group.Builder().name("group1").dateModified().build();
         group = groupDao.create(group);
 
         hibernateInitializer.getSession().flush();
@@ -84,7 +54,7 @@ public class GroupDaoTest extends HibernateInitializer {
 
     @Test
     public void shouldGetByNameReturnExistingGroup() throws Exception {
-        Group group = new Group.Builder().name("group1").build();
+        Group group = new Group.Builder().name("group1").dateModified().build();
         group = groupDao.create(group);
 
         hibernateInitializer.getSession().flush();
@@ -103,7 +73,7 @@ public class GroupDaoTest extends HibernateInitializer {
 
     @Test
     public void shouldAllMembersBeStored() throws Exception {
-        Group group = new Group.Builder().name("group1").members("ala","kot").build();
+        Group group = new Group.Builder().name("group1").members("ala","kot").dateModified().build();
         group = groupDao.create(group);
 
         hibernateInitializer.getSession().flush();
@@ -115,8 +85,8 @@ public class GroupDaoTest extends HibernateInitializer {
 
     @Test
     public void shouldFindDirtyFindAllNonSynchronizedGroups() throws Exception {
-        Group group1 = new Group.Builder().name("group1").build();
-        Group group2 = new Group.Builder().name("group2").build();
+        Group group1 = new Group.Builder().name("group1").dateModified().build();
+        Group group2 = new Group.Builder().name("group2").dateModified().build();
         group1 = groupDao.create(group1);
         group2 = groupDao.create(group2);
 
@@ -129,8 +99,8 @@ public class GroupDaoTest extends HibernateInitializer {
 
     @Test
     public void shouldFindDirtySkipSynchronizedGroups() throws Exception {
-        Group group1 = new Group.Builder().name("group1").build();
-        Group group2 = new Group.Builder().name("group2").build();
+        Group group1 = new Group.Builder().name("group1").dateModified().build();
+        Group group2 = new Group.Builder().name("group2").dateModified().build();
         group1 = groupDao.create(group1);
         group2 = groupDao.create(group2);
         group1 = groupDao.merge(new Group.Builder(group1).dateSynchronizedFromModified().build());
@@ -143,14 +113,14 @@ public class GroupDaoTest extends HibernateInitializer {
 
     @Test
     public void shouldFindDirtyFindSynchronizedButDirtyGroups() throws Exception {
-        Group group1 = new Group.Builder().name("group1").build();
-        Group group2 = new Group.Builder().name("group2").build();
+        Group group1 = new Group.Builder().name("group1").dateModified(0).build();
+        Group group2 = new Group.Builder().name("group2").dateModified(0).build();
         group1 = groupDao.create(group1);
         group2 = groupDao.create(group2);
         group1 = groupDao.merge(new Group.Builder(group1).dateSynchronizedFromModified().build());
         group2 = groupDao.merge(new Group.Builder(group2).dateSynchronizedFromModified().build());
         hibernateInitializer.getSession().flush();
-        group1 = groupDao.merge(new Group.Builder(group1).name("group1.1").build());
+        group1 = groupDao.merge(new Group.Builder(group1).name("group1.1").dateModified().build());
         hibernateInitializer.getSession().flush();
 
         List<Group> dirtyGroups = groupDao.findDirty();

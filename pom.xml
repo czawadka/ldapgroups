@@ -48,6 +48,12 @@
             <version>1.3.170</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.yammer.dropwizard</groupId>
+            <artifactId>dropwizard-testing</artifactId>
+            <version>${dropwizard.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
     
 </project>
