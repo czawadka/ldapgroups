@@ -13,6 +13,7 @@ import java.util.Set;
 
 @Named
 @Produces(MediaType.APPLICATION_JSON)
+@Path("/rest/group")
 public class GroupResource {
     GroupDao groupDao;
 
@@ -23,26 +24,24 @@ public class GroupResource {
 
 
     @GET
-    @Path("/group")
     public List<Group> listGroups() {
         return groupDao.findAll();
     }
 
     @POST
-    @Path("/group")
     public Group createGroup(Group group) {
         group = new Group.Builder(group).dateModified().build();
         return groupDao.create(group);
     }
 
     @GET
-    @Path("/group/{name}")
+    @Path("/{name}")
     public Group getGroup(@PathParam("name") String name) {
         return getByNameOrNotFound(name);
     }
 
     @POST
-    @Path("/group/{name}/members")
+    @Path("/{name}/members")
     public Group updateGroupMembers(@PathParam("name") String name, Set<String> members) {
         Group group = getByNameOrNotFound(name);
         Group mergeGroup = new Group.Builder(group).members(members).dateModified().build();
@@ -50,7 +49,7 @@ public class GroupResource {
     }
 
     @DELETE
-    @Path("/group/{name}")
+    @Path("/{name}")
     public void deleteGroup(@PathParam("name") String name) {
         Group group = getByNameOrNotFound(name);
         groupDao.delete(group);

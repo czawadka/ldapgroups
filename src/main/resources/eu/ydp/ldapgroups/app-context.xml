@@ -22,7 +22,7 @@
           class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
         <property name="dataSource" ref="dataSource" />
         <property name="packagesToScan" value="eu.ydp.ldapgroups.entity" />
-        <property name="hibernateProperties" value="${db.properties}" />
+        <property name="hibernateProperties" value="#{dw.db.properties}" />
     </bean>
 
     <bean id="txManager"

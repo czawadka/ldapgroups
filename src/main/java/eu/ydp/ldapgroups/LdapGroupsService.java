@@ -13,11 +13,13 @@ public class LdapGroupsService extends Service<LdapGroupsConfiguration> {
     public void initialize(Bootstrap<LdapGroupsConfiguration> bootstrap) {
         bootstrap.setName("ldapgroups");
 
-        bootstrap.addBundle(new SpringBundle<LdapGroupsConfiguration>(getApplicationContext()));
+        bootstrap.addBundle(new SpringBundle<LdapGroupsConfiguration>(getApplicationContext(), true, true));
     }
 
     private ConfigurableApplicationContext getApplicationContext() {
-        return new GenericXmlApplicationContext( getClass(), "app-context.xml");
+        GenericXmlApplicationContext context = new GenericXmlApplicationContext();
+        context.load(getClass(), "app-context.xml");
+        return context;
     }
 
     @Override

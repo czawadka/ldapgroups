@@ -4,18 +4,20 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.yammer.dropwizard.config.Configuration;
 import com.yammer.dropwizard.db.DatabaseConfiguration;
 import eu.ydp.ldapgroups.config.LdapConfiguration;
-import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 
-public class LdapGroupsConfiguration extends  Configuration {
+public class LdapGroupsConfiguration extends Configuration {
     @Valid
-    @NotEmpty
-    private LdapConfiguration ldap;
+    @NotNull
+    @JsonProperty
+    private LdapConfiguration ldap = new LdapConfiguration();
 
     @Valid
-    @NotEmpty
-    private DatabaseConfiguration db;
+    @NotNull
+    @JsonProperty
+    private DatabaseConfiguration db = new DatabaseConfiguration();
 
     public LdapConfiguration getLdap() {
         return ldap;

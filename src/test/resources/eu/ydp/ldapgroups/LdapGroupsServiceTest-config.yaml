@@ -1,0 +1,14 @@
+db:
+  driverClass: "org.h2.Driver"
+  url: "jdbc:h2:mem:testdb"
+  user: ""
+  properties:
+    hibernate.dialect: "org.hibernate.dialect.H2Dialect"
+    hibernate.hbm2ddl.auto: "create"
+    hibernate.show_sql: "true"
+    hibernate.format_sql: "true"
+ldap:
+  server: "HOST"
+  port: 0
+  baseDsn: "BASE_DSN"
+  user: "USER"

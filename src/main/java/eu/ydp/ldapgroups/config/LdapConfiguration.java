@@ -8,16 +8,22 @@ import javax.validation.constraints.NotNull;
 public class LdapConfiguration {
     @NotNull
     @JsonProperty
-    private String server;
+    private String server = "localhost";
 
     @NotNull
     @JsonProperty
-    private int port;
+    private Integer port = 389;
 
+    /**
+     * Eg. DC=intranet,DC=company
+     */
     @NotNull
     @JsonProperty
-    private String baseDsn;
+    private String baseDsn = "";
 
+    /**
+     * Eg. CN=userX,CN=Users,DC=intranet,DC=company
+     */
     @JsonProperty
     private String user = null;
 
