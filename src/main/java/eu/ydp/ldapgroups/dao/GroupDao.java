@@ -1,17 +1,17 @@
 package eu.ydp.ldapgroups.dao;
 
-import com.yammer.dropwizard.hibernate.AbstractDAO;
 import eu.ydp.ldapgroups.entity.Group;
 import org.hibernate.Criteria;
-import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Restrictions;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
+import javax.inject.Named;
 import java.util.List;
 
-public class GroupDao extends AbstractDAO<Group> {
-    public GroupDao(SessionFactory sessionFactory) {
-        super(sessionFactory);
-    }
+@Named
+@Transactional
+public class GroupDao extends AbstractDao<Group> {
 
     public Group getByName(String name) {
         Criteria criteria = criteria()
@@ -21,15 +21,15 @@ public class GroupDao extends AbstractDAO<Group> {
     }
 
     public Group create(Group group) {
-        return persist(group);
+        return saveOrUpdate(group);
+    }
+
+    public Group update(Group group) {
+        return super.merge(group);
     }
 
     public void delete(Group group) {
-        currentSession().delete(group);
-    }
-
-    public Group merge(Group group) {
-        return (Group)currentSession().merge(group);
+        super.delete(group);
     }
 
     public List<Group> findAll() {

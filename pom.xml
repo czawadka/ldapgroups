@@ -10,6 +10,9 @@
 
     <properties>
         <dropwizard.version>0.6.2</dropwizard.version>
+        <spring.version>3.2.0.RELEASE</spring.version>
+        <hibernate.version>4.1.7.Final</hibernate.version>
+        <bonecp.version>0.7.1.RELEASE</bonecp.version>
     </properties>
 
     <dependencies>
@@ -20,8 +23,38 @@
         </dependency>
         <dependency>
             <groupId>com.yammer.dropwizard</groupId>
-            <artifactId>dropwizard-hibernate</artifactId>
+            <artifactId>dropwizard-db</artifactId>
             <version>${dropwizard.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.nhuray</groupId>
+            <artifactId>dropwizard-spring</artifactId>
+            <version>0.2</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.inject</groupId>
+            <artifactId>javax.inject</artifactId>
+            <version>1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-orm</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-core</artifactId>
+            <version>${hibernate.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-jdbc</artifactId>
+            <version>${spring.version}</version>
         </dependency>
 
         <dependency>
@@ -52,6 +85,12 @@
             <groupId>com.yammer.dropwizard</groupId>
             <artifactId>dropwizard-testing</artifactId>
             <version>${dropwizard.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <version>${spring.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

@@ -4,19 +4,23 @@ import com.sun.jersey.api.NotFoundException;
 import eu.ydp.ldapgroups.entity.Group;
 import eu.ydp.ldapgroups.dao.GroupDao;
 
+import javax.inject.Inject;
+import javax.inject.Named;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
+@Named
 @Produces(MediaType.APPLICATION_JSON)
 public class GroupResource {
     GroupDao groupDao;
 
+    @Inject
     public GroupResource(GroupDao groupDao) {
         this.groupDao = groupDao;
     }
+
 
     @GET
     @Path("/group")
@@ -42,7 +46,7 @@ public class GroupResource {
     public Group updateGroupMembers(@PathParam("name") String name, Set<String> members) {
         Group group = getByNameOrNotFound(name);
         Group mergeGroup = new Group.Builder(group).members(members).dateModified().build();
-        return groupDao.merge(mergeGroup);
+        return groupDao.update(mergeGroup);
     }
 
     @DELETE

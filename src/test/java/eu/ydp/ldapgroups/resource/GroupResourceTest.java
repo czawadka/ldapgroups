@@ -66,7 +66,7 @@ public class GroupResourceTest {
     @Test
     public void shouldUpdateGroupMembersStoreMembersAndSetDateModified() throws Exception {
         GroupDao dao = createGroupDaoMock(group1.clone());
-        Mockito.when(dao.merge(org.mockito.Matchers.any(Group.class))).thenAnswer(new Answer<Object>() {
+        Mockito.when(dao.update(org.mockito.Matchers.any(Group.class))).thenAnswer(new Answer<Object>() {
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
                 return invocation.getArguments()[0];
