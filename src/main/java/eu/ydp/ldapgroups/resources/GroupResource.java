@@ -12,8 +12,8 @@ import java.util.List;
 import java.util.Set;
 
 @Named
-@Produces(MediaType.APPLICATION_JSON)
 @Path("/rest/group")
+@Produces(MediaType.APPLICATION_JSON)
 public class GroupResource {
     GroupDao groupDao;
 
@@ -21,7 +21,6 @@ public class GroupResource {
     public GroupResource(GroupDao groupDao) {
         this.groupDao = groupDao;
     }
-
 
     @GET
     public List<Group> listGroups() {
@@ -35,30 +34,30 @@ public class GroupResource {
     }
 
     @GET
-    @Path("/{name}")
-    public Group getGroup(@PathParam("name") String name) {
-        return getByNameOrNotFound(name);
+    @Path("/{groupName}")
+    public Group getGroup(@PathParam("groupName") String groupName) {
+        return getByNameOrNotFound(groupName);
     }
 
     @POST
-    @Path("/{name}/members")
-    public Group updateGroupMembers(@PathParam("name") String name, Set<String> members) {
-        Group group = getByNameOrNotFound(name);
+    @Path("/{groupName}/members")
+    public Group updateMembers(@PathParam("groupName") String groupName, Set<String> members) {
+        Group group = getByNameOrNotFound(groupName);
         Group mergeGroup = new Group.Builder(group).members(members).dateModified().build();
         return groupDao.update(mergeGroup);
     }
 
     @DELETE
-    @Path("/{name}")
-    public void deleteGroup(@PathParam("name") String name) {
-        Group group = getByNameOrNotFound(name);
+    @Path("/{groupName}")
+    public void deleteGroup(@PathParam("groupName") String groupName) {
+        Group group = getByNameOrNotFound(groupName);
         groupDao.delete(group);
     }
 
-    protected Group getByNameOrNotFound(String name) {
-        Group group = groupDao.getByName(name);
+    protected Group getByNameOrNotFound(String groupName) {
+        Group group = groupDao.getByName(groupName);
         if (group==null)
-            throw new NotFoundException("Group '"+name+"' not found");
+            throw new NotFoundException("Group '"+ groupName +"' not found");
         return group;
     }
 
