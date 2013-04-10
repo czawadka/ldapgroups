@@ -9,5 +9,5 @@ db:
     hibernate.format_sql: "true"
 ldap:
   url: "ldap://HOST:389"
-  baseDn: "BASE_DN"
+  baseDn: "DC=intranet,DC=ydp"
   user: "USER"

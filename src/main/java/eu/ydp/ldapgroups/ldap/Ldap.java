@@ -4,11 +4,13 @@ import org.springframework.ldap.core.AttributesMapper;
 import org.springframework.ldap.core.LdapTemplate;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import java.util.*;
 
+@Named
 public class Ldap {
     static public final String ATTR_DISTINGUISHED_NAME = "distinguishedName";
     static public final String ATTR_MEMBER = "member";
@@ -16,7 +18,6 @@ public class Ldap {
 
     @Inject
     LdapTemplate ldapTemplate;
-    String baseDn;
 
     public Set<String> getMembers(String groupName) {
         try {
@@ -32,14 +33,6 @@ public class Ldap {
         } catch (NamingException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    public String getBaseDn() {
-        return baseDn;
-    }
-
-    public void setBaseDn(String baseDn) {
-        this.baseDn = baseDn;
     }
 
     private Attributes getGroup(String groupName) {
@@ -93,7 +86,7 @@ public class Ldap {
     }
 
     private List<Attributes> search(String filter) {
-        return ldapTemplate.search(baseDn, filter, AttributesAttributesMapper.INSTANCE);
+        return ldapTemplate.search("", filter, AttributesAttributesMapper.INSTANCE);
     }
 
     private Attributes searchFirst(String filter) {
