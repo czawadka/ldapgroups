@@ -26,7 +26,8 @@ public class LdapTest {
                 equalToIgnoringCase("czawadka"),
                 equalToIgnoringCase("bdymowski"),
                 equalToIgnoringCase("akomuda"),
-                equalToIgnoringCase("pwalas")
+                equalToIgnoringCase("pwalas"),
+                equalToIgnoringCase("mduch")
         ));
     }
 

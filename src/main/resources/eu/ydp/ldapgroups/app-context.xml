@@ -37,6 +37,7 @@
         <property name="base" value="${ldap.baseDn}" />
         <property name="userDn" value="${ldap.user}" />
         <property name="password" value="${ldap.password}" />
+        <property name="referral" value="follow" />
     </bean>
 
     <bean id="ldapTemplate" class="org.springframework.ldap.core.LdapTemplate">
