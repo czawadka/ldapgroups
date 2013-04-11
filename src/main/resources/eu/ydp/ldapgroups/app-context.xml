@@ -34,7 +34,6 @@
 
     <bean id="contextSource" class="org.springframework.ldap.core.support.LdapContextSource">
         <property name="url" value="${ldap.url}" />
-        <property name="base" value="${ldap.baseDn}" />
         <property name="userDn" value="${ldap.user}" />
         <property name="password" value="${ldap.password}" />
         <property name="referral" value="follow" />
@@ -42,6 +41,10 @@
 
     <bean id="ldapTemplate" class="org.springframework.ldap.core.LdapTemplate">
         <constructor-arg ref="contextSource" />
+    </bean>
+
+    <bean id="ldap" class="eu.ydp.ldapgroups.ldap.Ldap">
+        <property name="baseDn" value="${ldap.baseDn}" />
     </bean>
 
 </beans>
