@@ -28,8 +28,4 @@
         <constructor-arg ref="contextSource" />
     </bean>
 
-    <bean id="ldap" class="eu.ydp.ldapgroups.ldap.Ldap">
-        <property name="baseDn" value="${ldap.baseDn}" />
-    </bean>
-
 </beans>

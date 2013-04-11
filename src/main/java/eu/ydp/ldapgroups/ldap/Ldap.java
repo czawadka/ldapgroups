@@ -1,5 +1,6 @@
 package eu.ydp.ldapgroups.ldap;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.ldap.core.AttributesMapper;
 import org.springframework.ldap.core.LdapTemplate;
 
@@ -9,6 +10,7 @@ import javax.naming.NamingException;
 import javax.naming.directory.*;
 import java.util.*;
 
+@Named
 public class Ldap {
     static public final String ATTR_DISTINGUISHED_NAME = "distinguishedName";
     static public final String ATTR_MEMBER = "member";
@@ -17,6 +19,7 @@ public class Ldap {
 
     @Inject
     LdapTemplate ldapTemplate;
+    @Value("${ldap.baseDn}")
     String baseDn;
 
     public Collection<String> getMembers(String groupName) {
