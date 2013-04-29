@@ -12,26 +12,20 @@
             http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd
             ">
 
-    <context:component-scan base-package="eu.ydp.ldapgroups.dao"/>
+    <context:component-scan base-package="eu.ydp.ldapgroups.ldap"/>
 
-    <bean id="sessionFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
-        <property name="dataSource" ref="dataSource" />
-        <property name="packagesToScan" value="eu.ydp.ldapgroups.entity" />
-        <property name="hibernateProperties">
-            <props>
-                <prop key="hibernate.dialect">org.hibernate.dialect.H2Dialect</prop>
-                <prop key="hibernate.format_sql">true</prop>
-                <prop key="hibernate.show_sql">true</prop>
-                <prop key="hibernate.hbm2ddl.auto">create</prop>
-            </props>
-        </property>
+    <context:property-placeholder location="classpath:eu/ydp/ldapgroups/ldap/ldap.properties" />
+
+    <bean id="contextSource" class="org.springframework.ldap.core.support.LdapContextSource">
+        <property name="url" value="${ldap.url}" />
+        <property name="userDn" value="${ldap.user}" />
+        <property name="password" value="${ldap.password}" />
+        <!--<property name="base" value="${ldap.baseDn}" />-->
+        <property name="referral" value="follow" />
     </bean>
 
-    <bean id="txManager" class="org.springframework.orm.hibernate4.HibernateTransactionManager">
-        <property name="sessionFactory" ref="sessionFactory" />
+    <bean id="ldapTemplate" class="org.springframework.ldap.core.LdapTemplate">
+        <constructor-arg ref="contextSource" />
     </bean>
 
-    <tx:annotation-driven transaction-manager="txManager" />
-
-    <jdbc:embedded-database id="dataSource" type="H2" />
 </beans>

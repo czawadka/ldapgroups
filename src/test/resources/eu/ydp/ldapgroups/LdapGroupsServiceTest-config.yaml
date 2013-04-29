@@ -8,7 +8,6 @@ db:
     hibernate.show_sql: "true"
     hibernate.format_sql: "true"
 ldap:
-  server: "HOST"
-  port: 0
-  baseDsn: "BASE_DSN"
+  url: "ldap://HOST:389"
+  baseDn: "DC=intranet,DC=ydp"
   user: "USER"
