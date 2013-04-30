@@ -48,4 +48,9 @@ public class DbToLdapWorker implements Runnable {
 
         logger.info("Sync stop");
     }
+
+    @Override
+    public String toString() {
+        return "DbToLdapWorker";
+    }
 }

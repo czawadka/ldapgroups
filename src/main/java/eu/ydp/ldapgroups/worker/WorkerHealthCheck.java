@@ -8,8 +8,7 @@ import java.util.concurrent.ScheduledFuture;
 public class WorkerHealthCheck extends HealthCheck {
     WorkerManager workerManager;
 
-    @Inject
-    protected WorkerHealthCheck(WorkerManager workerManager) {
+    public WorkerHealthCheck(WorkerManager workerManager) {
         super("WorkerManager:"+workerManager.getWorker().toString());
         this.workerManager = workerManager;
     }
