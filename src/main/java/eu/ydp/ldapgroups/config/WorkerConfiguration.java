@@ -1,6 +1,7 @@
 package eu.ydp.ldapgroups.config;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.yammer.dropwizard.util.Duration;
 
 import javax.validation.constraints.NotNull;
 
@@ -10,9 +11,9 @@ public class WorkerConfiguration {
      */
     @NotNull
     @JsonProperty
-    private int period = 600;
+    private Duration period = Duration.seconds(600);
 
-    public int getPeriod() {
+    public Duration getPeriod() {
         return period;
     }
 }

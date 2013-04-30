@@ -1,6 +1,7 @@
 package eu.ydp.ldapgroups.worker;
 
 import com.yammer.dropwizard.lifecycle.Managed;
+import com.yammer.dropwizard.util.Duration;
 
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -9,11 +10,11 @@ import java.util.concurrent.TimeUnit;
 public class WorkerManager implements Managed {
     ScheduledExecutorService scheduler;
     Runnable worker;
-    int period;
+    Duration period;
 
     ScheduledFuture<?> scheduledFuture;
 
-    public WorkerManager(ScheduledExecutorService scheduler, int period, Runnable worker) {
+    public WorkerManager(ScheduledExecutorService scheduler, Duration period, Runnable worker) {
         this.scheduler = scheduler;
         this.worker = worker;
         this.period = period;
@@ -27,13 +28,9 @@ public class WorkerManager implements Managed {
         return worker;
     }
 
-    public void setPeriod(int period) {
-        this.period = period;
-    }
-
     @Override
     public void start() throws Exception {
-        scheduledFuture = scheduler.scheduleAtFixedRate(worker, 0, period, TimeUnit.SECONDS);
+        scheduledFuture = scheduler.scheduleAtFixedRate(worker, 0, period.getQuantity(), period.getUnit());
     }
 
     @Override

@@ -1,5 +1,6 @@
 package eu.ydp.ldapgroups.worker;
 
+import com.yammer.dropwizard.util.Duration;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
 import org.junit.Before;
@@ -13,7 +14,7 @@ import java.util.concurrent.TimeUnit;
 public class DbToLdapManagerTest {
     DbToLdapManager manager;
     ScheduledExecutorService scheduler;
-    int period = 10;
+    Duration period = Duration.seconds(10);
     DbToLdapWorker worker;
 
     @Before
@@ -36,11 +37,12 @@ public class DbToLdapManagerTest {
     @Test
     public void shouldStartInitilizeExecutor() throws Exception {
         ScheduledFuture scheduledFuture = Mockito.mock(ScheduledFuture.class);
-        Mockito.when(scheduler.scheduleAtFixedRate(worker, 0, period, TimeUnit.SECONDS)).thenReturn(scheduledFuture);
+        Mockito.when(scheduler.scheduleAtFixedRate(worker, 0, period.getQuantity(), period.getUnit()))
+                .thenReturn(scheduledFuture);
 
         manager.start();
         
-        Mockito.verify(scheduler).scheduleAtFixedRate(worker, 0, period, TimeUnit.SECONDS);
+        Mockito.verify(scheduler).scheduleAtFixedRate(worker, 0, period.getQuantity(), period.getUnit());
         MatcherAssert.assertThat(manager.getScheduledFuture(), Matchers.equalTo(scheduledFuture));
     }
 
@@ -48,7 +50,8 @@ public class DbToLdapManagerTest {
     public void shouldStopCancelFuture() throws Exception {
         ScheduledFuture scheduledFuture = Mockito.mock(ScheduledFuture.class);
 
-        Mockito.when(scheduler.scheduleAtFixedRate(worker, 0, period, TimeUnit.SECONDS)).thenReturn(scheduledFuture);
+        Mockito.when(scheduler.scheduleAtFixedRate(worker, 0, period.getQuantity(), period.getUnit()))
+                .thenReturn(scheduledFuture);
 
         manager.start();
         manager.stop();
