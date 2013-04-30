@@ -15,11 +15,6 @@ import java.util.List;
 @Transactional
 public class GroupDao extends AbstractDao<Group> {
 
-    public Group get(Long id) {
-        return uniqueResult(
-                criteria().add(Restrictions.eq("id", id))
-        );
-    }
     public Group getByName(String name) {
         return uniqueResult(
                 criteria().add(Restrictions.eq("name", name))
@@ -61,8 +56,8 @@ public class GroupDao extends AbstractDao<Group> {
                 ;
     }
 
-    public boolean updateDateSynchronized(Long id, Date dateSynchronized) {
-        Group group = get(id);
+    public boolean updateDateSynchronized(String name, Date dateSynchronized) {
+        Group group = getByName(name);
         if (group==null) {
             return false;
         }

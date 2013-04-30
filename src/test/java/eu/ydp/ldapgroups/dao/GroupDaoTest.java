@@ -10,6 +10,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
+import java.util.Date;
 import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -103,4 +104,23 @@ public class GroupDaoTest {
         MatcherAssert.assertThat(dirtyGroups, Matchers.containsInAnyOrder(group1));
     }
 
+    @Test
+    public void shouldUpdateDateSychronizedSetDateSychronized() throws Exception {
+        Group group = new Group.Builder().name("group1").dateModified(0).build();
+        group = groupDao.create(group);
+        Date date = new Date(Long.MAX_VALUE-1);
+
+        groupDao.updateDateSynchronized(group.getName(), date);
+
+        Group updatedGroup = groupDao.getByName(group.getName());
+        MatcherAssert.assertThat(updatedGroup.getDateSynchronized(), Matchers.equalTo(date));
+    }
+
+    @Test
+    public void shouldUpdateDateSychronizedReturnFalseWhenGroupNotFound() throws Exception {
+        Date date = new Date(Long.MAX_VALUE-1);
+        boolean result = groupDao.updateDateSynchronized("non existing name", date);
+
+        MatcherAssert.assertThat(result, Matchers.equalTo(false));
+    }
 }
