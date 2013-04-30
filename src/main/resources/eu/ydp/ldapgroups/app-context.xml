@@ -43,4 +43,9 @@
         <constructor-arg ref="contextSource" />
     </bean>
 
+    <bean id="scheduledExecutorService"
+          class="java.util.concurrent.Executors"
+          factory-method="newScheduledThreadPool" >
+        <constructor-arg value="1"/>
+    </bean>
 </beans>
