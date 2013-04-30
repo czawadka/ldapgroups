@@ -30,6 +30,8 @@ public class DbToLdapWorker implements Runnable {
         try {
             List<Group> dirtyGroups = groupDao.findDirty();
             for (Group group : dirtyGroups) {
+                if (Thread.interrupted())
+                    throw new InterruptedException();
                 logger.info("Sync dirty group {}", group.getName());
                 boolean result = ldap.setMembers(group.getName(), group.getMembers());
                 if (result==false) {
@@ -38,6 +40,8 @@ public class DbToLdapWorker implements Runnable {
                     groupDao.updateDateSynchronized(group.getName(), group.getDateModified());
                 }
             }
+        } catch (InterruptedException e) {
+            logger.info("Sync interrupted");
         } catch (Exception e) {
             logger.error("Sync error", e);
         }
