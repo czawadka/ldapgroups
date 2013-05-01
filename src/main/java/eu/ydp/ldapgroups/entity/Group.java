@@ -67,8 +67,16 @@ public class Group implements Cloneable {
         return dateModified;
     }
 
+    public void setDateModified(Date dateModified) {
+        this.dateModified = dateModified;
+    }
+
     public Date getDateSynchronized() {
         return dateSynchronized;
+    }
+
+    public void setDateSynchronized(Date dateSynchronized) {
+        this.dateSynchronized = dateSynchronized;
     }
 
     @Override

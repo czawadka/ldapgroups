@@ -2,11 +2,13 @@ package eu.ydp.ldapgroups.dao;
 
 import eu.ydp.ldapgroups.entity.Group;
 import org.hibernate.Criteria;
+import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Named;
+import java.util.Date;
 import java.util.List;
 
 @Named
@@ -14,10 +16,9 @@ import java.util.List;
 public class GroupDao extends AbstractDao<Group> {
 
     public Group getByName(String name) {
-        Criteria criteria = criteria()
-                .add(Restrictions.eq("name", name))
-                ;
-        return uniqueResult(criteria);
+        return uniqueResult(
+                criteria().add(Restrictions.eq("name", name))
+        );
     }
 
     public Group create(Group group) {
@@ -38,12 +39,30 @@ public class GroupDao extends AbstractDao<Group> {
     }
 
     public List<Group> findDirty() {
-        Criteria criteria = criteria()
+        return list(createDirtyCriteria());
+    }
+
+    public Group getFirstDirty() {
+        return uniqueResult(createDirtyCriteria());
+    }
+
+    protected Criteria createDirtyCriteria() {
+        return criteria()
                 .add(Restrictions.or(
                         Restrictions.isNull("dateSynchronized"),
                         Restrictions.ltProperty("dateSynchronized", "dateModified")
                 ))
+                .addOrder(Order.asc("dateModified"))
                 ;
-        return list(criteria);
+    }
+
+    public boolean updateDateSynchronized(String name, Date dateSynchronized) {
+        Group group = getByName(name);
+        if (group==null) {
+            return false;
+        }
+        group.setDateSynchronized(dateSynchronized);
+        merge(group);
+        return true;
     }
 }
