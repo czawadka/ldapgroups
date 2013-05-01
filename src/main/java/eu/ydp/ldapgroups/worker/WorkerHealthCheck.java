@@ -4,6 +4,7 @@ import com.yammer.metrics.core.HealthCheck;
 
 import javax.inject.Inject;
 import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 public class WorkerHealthCheck extends HealthCheck {
     WorkerManager workerManager;
@@ -20,8 +21,8 @@ public class WorkerHealthCheck extends HealthCheck {
             return Result.unhealthy("not started");
         if (scheduledFuture.isCancelled())
             return Result.unhealthy("cancelled");
-        if (!scheduledFuture.isDone())
-            return Result.healthy("not done yet");
-        return Result.healthy("done");
+        if (scheduledFuture.getDelay(TimeUnit.NANOSECONDS)<=0)
+            return Result.healthy("is running");
+        return Result.healthy("next run in "+scheduledFuture.getDelay(TimeUnit.SECONDS)+" seconds");
     }
 }
