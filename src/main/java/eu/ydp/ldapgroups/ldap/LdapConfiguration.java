@@ -1,4 +1,4 @@
-package eu.ydp.ldapgroups.config;
+package eu.ydp.ldapgroups.ldap;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

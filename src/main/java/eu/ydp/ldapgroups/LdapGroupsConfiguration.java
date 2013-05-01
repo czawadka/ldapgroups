@@ -3,8 +3,8 @@ package eu.ydp.ldapgroups;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.yammer.dropwizard.config.Configuration;
 import com.yammer.dropwizard.db.DatabaseConfiguration;
-import eu.ydp.ldapgroups.config.LdapConfiguration;
-import eu.ydp.ldapgroups.config.WorkerConfiguration;
+import eu.ydp.ldapgroups.ldap.LdapConfiguration;
+import eu.ydp.ldapgroups.worker.WorkerConfiguration;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;

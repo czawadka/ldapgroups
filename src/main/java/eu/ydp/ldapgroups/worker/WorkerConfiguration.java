@@ -1,4 +1,4 @@
-package eu.ydp.ldapgroups.config;
+package eu.ydp.ldapgroups.worker;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.yammer.dropwizard.util.Duration;
