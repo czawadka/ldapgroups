@@ -1,6 +1,7 @@
 package eu.ydp.ldapgroups;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.collect.ImmutableMap;
 import com.yammer.dropwizard.config.Configuration;
 import com.yammer.dropwizard.db.DatabaseConfiguration;
 import eu.ydp.ldapgroups.ldap.LdapConfiguration;
@@ -24,6 +25,17 @@ public class LdapGroupsConfiguration extends Configuration {
     @NotNull
     @JsonProperty
     private DatabaseConfiguration db = new DatabaseConfiguration();
+
+    public LdapGroupsConfiguration() {
+        // non .yaml configuration
+        db.setDriverClass("org.h2.Driver");
+        db.setUrl("jdbc:h2:file:ldapgroups");
+        db.setUser("");
+        db.setProperties(ImmutableMap.of(
+                "hibernate.dialect", "org.hibernate.dialect.H2Dialect",
+                "hibernate.hbm2ddl.auto", "update"
+        ));
+    }
 
     public LdapConfiguration getLdap() {
         return ldap;
