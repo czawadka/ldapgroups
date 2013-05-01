@@ -25,6 +25,10 @@ public class LdapConfiguration {
     @JsonProperty
     private String baseDn = "";
 
+    @NotNull
+    @JsonProperty
+    private String validationGroup;
+
     public String getUrl() {
         return url;
     }
@@ -41,4 +45,7 @@ public class LdapConfiguration {
         return baseDn;
     }
 
+    public String getValidationGroup() {
+        return validationGroup;
+    }
 }
