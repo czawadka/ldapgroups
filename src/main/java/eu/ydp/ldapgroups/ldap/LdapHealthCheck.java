@@ -22,6 +22,8 @@ public class LdapHealthCheck extends HealthCheck {
     @Override
     protected Result check() throws Exception {
         try {
+            if (validationGroup==null || validationGroup.trim().length()==0)
+                return Result.unhealthy("group name (validationGroup variable) not set, unable to check health");
             ldap.setMembers(validationGroup, Collections.<String>emptyList());
         } catch (Throwable e) {
             return Result.unhealthy(e);

@@ -27,7 +27,7 @@ public class LdapConfiguration {
 
     @NotNull
     @JsonProperty
-    private String validationGroup;
+    private String validationGroup = "";
 
     public String getUrl() {
         return url;
