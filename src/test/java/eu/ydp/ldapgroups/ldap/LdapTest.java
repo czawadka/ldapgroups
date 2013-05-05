@@ -1,17 +1,17 @@
 package eu.ydp.ldapgroups.ldap;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.springframework.ldap.core.DistinguishedName;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.inject.Inject;
+import javax.naming.CommunicationException;
 import javax.naming.Name;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
+import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -32,6 +32,21 @@ public class LdapTest {
     String testSubDn = "ou=PSS-TimeGroups,ou=YDP";
 
     DistinguishedName groupDnToRemove;
+
+    @Before
+    public void ignoreIfUnknownHost() {
+        try {
+            ldap.getMembers(testSubDn);
+        } catch (RuntimeException e) {
+            Throwable root = e;
+            while(root!=root.getCause() && root.getCause()!=null) {
+                root = root.getCause();
+            }
+            // ignore if unknown host otherwise silent it (will be thrown by test method)
+            if (root instanceof UnknownHostException)
+                Assume.assumeNoException(root);
+        }
+    }
 
     @After
     public void tearDown() throws Exception {
