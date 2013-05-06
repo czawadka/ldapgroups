@@ -11,3 +11,4 @@ ldap:
   url: "ldap://HOST:389"
   baseDn: "DC=intranet,DC=ydp"
   user: "USER"
+  validationGroup: "ala ma kota"
