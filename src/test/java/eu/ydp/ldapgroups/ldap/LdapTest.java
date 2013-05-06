@@ -22,10 +22,10 @@ import static org.junit.Assert.assertThat;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
 public class LdapTest {
-    static public final String USER1_DN = "CN=Administrator,CN=Users,DC=intranet,DC=ydp";
-    static public final String USER1_LOGIN = "administrator";
-    static public final String USER2_DN = "CN=Cezary Zawadka,CN=Users,DC=intranet,DC=ydp";
-    static public final String USER2_LOGIN = "czawadka";
+    static public final String USER1_DN = "CN=test1,CN=Users,DC=intranet,DC=ydp";
+    static public final String USER1_LOGIN = "test1";
+    static public final String USER2_DN = "CN=test2,CN=Users,DC=intranet,DC=ydp";
+    static public final String USER2_LOGIN = "test2";
 
     @Inject
     Ldap ldap;
