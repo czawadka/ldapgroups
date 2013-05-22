@@ -23,6 +23,8 @@ public class GroupResourceTest extends ResourceTest {
     GroupDaoMocker daoMocker;
     GroupResource resource;
 
+    static public final String API_BASE = "/api/groups";
+
     @Override
     protected void setUpResources() throws Exception {
         group1 = new Group.Builder().name("group1").dateModified(new Date(0)).build();
@@ -37,7 +39,7 @@ public class GroupResourceTest extends ResourceTest {
     public void shouldListGroupsReturnAllGroups() throws Exception {
         daoMocker.setEntities(group1, group2);
 
-        Group[] groups = client().resource("/rest/group")
+        Group[] groups = client().resource(API_BASE)
                 .get(Group[].class);
 
         MatcherAssert.assertThat(Arrays.asList(groups), Matchers.containsInAnyOrder(
@@ -46,7 +48,7 @@ public class GroupResourceTest extends ResourceTest {
 
     @Test
     public void shouldCreateGroupRememberDataAndReturnUpdatedObject() throws Exception {
-        Group group = client().resource("/rest/group")
+        Group group = client().resource(API_BASE)
                 .entity(group1, MediaType.APPLICATION_JSON_TYPE)
                 .post(Group.class);
 
@@ -58,7 +60,7 @@ public class GroupResourceTest extends ResourceTest {
     public void shouldGetGroupReturnExitingObject() throws Exception {
         daoMocker.setEntities(group1);
 
-        Group group = client().resource("/rest/group/"+group1.getName())
+        Group group = client().resource(API_BASE + "/" + group1.getName())
                 .get(Group.class);
 
         MatcherAssert.assertThat(group, toStringEqualTo(group1));
@@ -70,7 +72,7 @@ public class GroupResourceTest extends ResourceTest {
     }
 
     @Test
-    public void shouldUpdateGroupMembersStoreMembersAndSetDateModified() throws Exception {
+    public void setGroupShouldUpdateMembersIfGroupExists() throws Exception {
         daoMocker.setEntities(group1.clone());
         Mockito.when(daoMocker.mock().update(org.mockito.Matchers.any(Group.class))).thenAnswer(new Answer<Object>() {
             @Override
@@ -79,25 +81,40 @@ public class GroupResourceTest extends ResourceTest {
             }
         });
 
-        Group group = client().resource("/rest/group/"+group1.getName()+"/members")
-                .entity(Arrays.asList("parasol"), MediaType.APPLICATION_JSON_TYPE)
-                .post(Group.class);
+        Group modifiedGroup = new Group.Builder(group1).members("parasol").build();
+        Group group = client().resource(API_BASE+"/"+group1.getName())
+                .entity(modifiedGroup, MediaType.APPLICATION_JSON_TYPE)
+                .put(Group.class);
 
         MatcherAssert.assertThat(group.getName(), Matchers.equalTo(group1.getName()));
         MatcherAssert.assertThat(group.getMembers(), Matchers.containsInAnyOrder("parasol"));
         MatcherAssert.assertThat(group.getDateModified(), Matchers.greaterThan(group1.getDateModified()));
     }
 
-    @Test(expected = NotFoundException.class)
-    public void shouldUpdateMembersThrowNotFoundExceptionOnNonExistingObject() throws Exception {
-        resource.updateMembers("non existing group", group2.getMembers());
+    @Test
+    public void setGroupShouldCreateGroupIfGroupNotExists() throws Exception {
+        Mockito.when(daoMocker.mock().create(org.mockito.Matchers.any(Group.class))).thenAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                return invocation.getArguments()[0];
+            }
+        });
+
+        Group modifiedGroup = new Group.Builder(group1).members("parasol").build();
+        Group group = client().resource(API_BASE+"/"+group1.getName())
+                .entity(modifiedGroup, MediaType.APPLICATION_JSON_TYPE)
+                .put(Group.class);
+
+        MatcherAssert.assertThat(group.getName(), Matchers.equalTo(group1.getName()));
+        MatcherAssert.assertThat(group.getMembers(), Matchers.containsInAnyOrder("parasol"));
+        MatcherAssert.assertThat(group.getDateModified(), Matchers.greaterThan(group1.getDateModified()));
     }
 
     @Test
     public void shouldDeleteRemoveExistingObject() throws Exception {
         daoMocker.setEntities(group1);
 
-        client().resource("/rest/group/"+group1.getName())
+        client().resource(API_BASE+"/"+group1.getName())
                 .entity(Arrays.asList("parasol"), MediaType.APPLICATION_JSON_TYPE)
                 .delete();
 
