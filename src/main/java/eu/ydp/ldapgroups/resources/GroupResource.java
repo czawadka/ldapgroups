@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Set;
 
 @Named
-@Path("/rest/group")
+@Path("/api/groups")
 @Produces(MediaType.APPLICATION_JSON)
 public class GroupResource {
     GroupDao groupDao;
