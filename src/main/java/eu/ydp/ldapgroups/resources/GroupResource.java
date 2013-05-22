@@ -39,12 +39,16 @@ public class GroupResource {
         return getByNameOrNotFound(groupName);
     }
 
-    @POST
-    @Path("/{groupName}/members")
-    public Group updateMembers(@PathParam("groupName") String groupName, Set<String> members) {
-        Group group = getByNameOrNotFound(groupName);
-        Group mergeGroup = new Group.Builder(group).members(members).dateModified().build();
-        return groupDao.update(mergeGroup);
+    @PUT
+    @Path("/{groupName}")
+    public Group setGroup(@PathParam("groupName") String groupName, Group group) {
+        Group up2dateGroup = groupDao.getByName(groupName);
+        if (up2dateGroup==null) {
+            return createGroup(group);
+        } else {
+            Group mergeGroup = new Group.Builder(up2dateGroup).members(group.getMembers()).dateModified().build();
+            return groupDao.update(mergeGroup);
+        }
     }
 
     @DELETE
