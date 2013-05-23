@@ -23,7 +23,7 @@ public class GroupResourceTest extends ResourceTest {
     GroupDaoMocker daoMocker;
     GroupResource resource;
 
-    static public final String API_BASE = "/api/groups";
+    static public final String API_BASE = "/groups";
 
     @Override
     protected void setUpResources() throws Exception {

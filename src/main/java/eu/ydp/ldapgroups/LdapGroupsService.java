@@ -2,6 +2,7 @@ package eu.ydp.ldapgroups;
 
 import com.github.nhuray.dropwizard.spring.SpringBundle;
 import com.yammer.dropwizard.Service;
+import com.yammer.dropwizard.assets.AssetsBundle;
 import com.yammer.dropwizard.config.Bootstrap;
 import com.yammer.dropwizard.config.Environment;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -13,6 +14,7 @@ public class LdapGroupsService extends Service<LdapGroupsConfiguration> {
     public void initialize(Bootstrap<LdapGroupsConfiguration> bootstrap) {
         bootstrap.setName("ldapgroups");
 
+        bootstrap.addBundle(new AssetsBundle("/eu/ydp/ldapgroups/assets", "/", "index.html"));
         bootstrap.addBundle(new SpringBundle<LdapGroupsConfiguration>(getApplicationContext(), true, true));
     }
 

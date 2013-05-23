@@ -35,6 +35,8 @@ public class LdapGroupsConfiguration extends Configuration {
                 "hibernate.dialect", "org.hibernate.dialect.H2Dialect",
                 "hibernate.hbm2ddl.auto", "update"
         ));
+
+        getHttpConfiguration().setRootPath("/api/*");
     }
 
     public LdapConfiguration getLdap() {
