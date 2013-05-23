@@ -2,7 +2,6 @@ package eu.ydp.ldapgroups.worker;
 
 import com.yammer.metrics.core.HealthCheck;
 
-import javax.inject.Inject;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -18,7 +17,7 @@ public class WorkerHealthCheck extends HealthCheck {
     protected Result check() throws Exception {
         ScheduledFuture scheduledFuture = workerManager.getScheduledFuture();
         if (scheduledFuture==null)
-            return Result.unhealthy("not started");
+            return Result.healthy("not started yet");
         if (scheduledFuture.isCancelled())
             return Result.unhealthy("cancelled");
         if (scheduledFuture.getDelay(TimeUnit.NANOSECONDS)<=0)
