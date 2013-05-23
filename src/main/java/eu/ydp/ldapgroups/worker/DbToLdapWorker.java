@@ -25,14 +25,14 @@ public class DbToLdapWorker implements Runnable {
 
     @Override
     public void run() {
-        logger.info("Sync start");
+        logger.debug("Sync start");
 
         try {
             List<Group> dirtyGroups = groupDao.findDirty();
             for (Group group : dirtyGroups) {
                 if (Thread.interrupted())
                     throw new InterruptedException();
-                logger.info("Sync dirty group {}", group.getName());
+                logger.debug("Sync dirty group {}", group.getName());
                 boolean result = ldap.setMembers(group.getName(), group.getMembers());
                 if (result==false) {
                     logger.warn("Sync dirty group {} FAIL: group not found", group.getName());
@@ -41,12 +41,12 @@ public class DbToLdapWorker implements Runnable {
                 }
             }
         } catch (InterruptedException e) {
-            logger.info("Sync interrupted");
+            logger.debug("Sync interrupted");
         } catch (Exception e) {
             logger.error("Sync error", e);
         }
 
-        logger.info("Sync stop");
+        logger.debug("Sync stop");
     }
 
     @Override

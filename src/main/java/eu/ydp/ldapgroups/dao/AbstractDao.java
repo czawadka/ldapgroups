@@ -19,7 +19,6 @@ public class AbstractDao<E> {
     }
 
     protected Session currentSession() {
-        System.out.println("------------------------------- currentSession");
         return sessionFactory.getCurrentSession();
     }
 
