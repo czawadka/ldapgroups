@@ -54,8 +54,7 @@ public class GroupResource {
     @DELETE
     @Path("/{groupName}")
     public void deleteGroup(@PathParam("groupName") String groupName) {
-        Group group = getByNameOrNotFound(groupName);
-        groupDao.delete(group);
+        groupDao.delete(groupName);
     }
 
     protected Group getByNameOrNotFound(String groupName) {

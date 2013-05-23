@@ -1,4 +1,4 @@
-package eu.ydp.ldapgroups.resource;
+package eu.ydp.ldapgroups.resources;
 
 import eu.ydp.ldapgroups.dao.GroupDao;
 import eu.ydp.ldapgroups.entity.Group;

@@ -29,8 +29,14 @@ public class GroupDao extends AbstractDao<Group> {
         return super.merge(group);
     }
 
-    public void delete(Group group) {
-        super.delete(group);
+    public boolean delete(String groupName) {
+        Group group = getByName(groupName);
+        if (group==null) {
+            return false;
+        }
+
+        delete(group);
+        return true;
     }
 
     public List<Group> findAll() {

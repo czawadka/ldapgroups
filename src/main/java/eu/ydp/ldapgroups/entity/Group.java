@@ -1,7 +1,8 @@
 package eu.ydp.ldapgroups.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import javax.persistence.*;
 import java.util.*;
@@ -20,7 +21,7 @@ public class Group implements Cloneable {
     @Column(name = "name", nullable = false)
     String name;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "group_member", joinColumns = @JoinColumn(name = "id"))
     @Column(name = "member")
     Set<String> members;
@@ -84,8 +85,9 @@ public class Group implements Cloneable {
         return "Group{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
-                ", modified='" + (dateModified!=null ? dateModified.getTime() : null) + '\'' +
-                ", synchronized='" + (dateSynchronized!=null ? dateSynchronized.getTime() : null) + '\'' +
+                ", members="+members +
+                ", dateModified='" + (dateModified!=null ? dateModified.getTime() : null) + '\'' +
+                ", dateSynchronized='" + (dateSynchronized!=null ? dateSynchronized.getTime() : null) + '\'' +
                 '}';
     }
 

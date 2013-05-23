@@ -4,6 +4,7 @@ import com.yammer.dropwizard.util.Generics;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.criterion.CriteriaSpecification;
 
 import javax.inject.Inject;
 
@@ -31,7 +32,9 @@ public class AbstractDao<E> {
     }
 
     protected List<E> list(Criteria criteria) {
-        return criteria.list();
+        return criteria
+                .setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY)
+                .list();
     }
 
     protected E saveOrUpdate(E entity) {

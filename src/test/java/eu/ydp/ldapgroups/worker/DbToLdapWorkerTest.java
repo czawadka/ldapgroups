@@ -2,7 +2,7 @@ package eu.ydp.ldapgroups.worker;
 
 import eu.ydp.ldapgroups.entity.Group;
 import eu.ydp.ldapgroups.ldap.Ldap;
-import eu.ydp.ldapgroups.resource.GroupDaoMocker;
+import eu.ydp.ldapgroups.resources.GroupDaoMocker;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
 import org.junit.Before;
