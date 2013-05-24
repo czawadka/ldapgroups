@@ -54,14 +54,19 @@ public class GroupResource {
     @DELETE
     @Path("/{groupName}")
     public void deleteGroup(@PathParam("groupName") String groupName) {
-        groupDao.delete(groupName);
+        if (!groupDao.delete(groupName)) {
+            throwNotFound(groupName);
+        }
     }
 
     protected Group getByNameOrNotFound(String groupName) {
         Group group = groupDao.getByName(groupName);
         if (group==null)
-            throw new NotFoundException("Group '"+ groupName +"' not found");
+            throwNotFound(groupName);
         return group;
     }
 
+    protected void throwNotFound(String groupName) throws NotFoundException {
+        throw new NotFoundException("Group '"+ groupName +"' not found");
+    }
 }

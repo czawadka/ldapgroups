@@ -122,7 +122,6 @@ public class GroupResourceTest extends ResourceTest {
         setEntities(group1);
 
         client().resource(API_BASE+"/"+group1.getName())
-                .entity(Arrays.asList("parasol"), MediaType.APPLICATION_JSON_TYPE)
                 .delete();
 
         Group[] groups = client().resource(API_BASE)
