@@ -12,7 +12,16 @@ import org.springframework.context.support.GenericXmlApplicationContext;
 import java.util.Map;
 
 public class LdapGroupsService extends Service<LdapGroupsConfiguration> {
+    boolean runHealthChecksOnStart;
     ConfigurableApplicationContext appContext;
+
+    public LdapGroupsService(boolean runHealthChecksOnStart) {
+        this.runHealthChecksOnStart = runHealthChecksOnStart;
+    }
+
+    public LdapGroupsService() {
+        this(true);
+    }
 
     @Override
     public void initialize(Bootstrap<LdapGroupsConfiguration> bootstrap) {
@@ -36,7 +45,8 @@ public class LdapGroupsService extends Service<LdapGroupsConfiguration> {
          * configuration is done from Spring's application context by {@link SpringBundle.run()}
          */
 
-        checkHealthChecks();
+        if (runHealthChecksOnStart)
+            checkHealthChecks();
     }
 
     private void checkHealthChecks() throws Exception {
