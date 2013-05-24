@@ -1,39 +1,54 @@
 package eu.ydp.ldapgroups.worker;
 
+import eu.ydp.ldapgroups.dao.GroupDao;
 import eu.ydp.ldapgroups.entity.Group;
 import eu.ydp.ldapgroups.ldap.Ldap;
-import eu.ydp.ldapgroups.resources.GroupDaoMocker;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mockito;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import javax.inject.Inject;
+import java.sql.Timestamp;
 import java.util.Date;
 
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration
 public class DbToLdapWorkerTest {
     Group groupDirty;
     Group groupClean;
 
-    GroupDaoMocker daoMocker;
+    @Inject
+    GroupDao dao;
     Ldap ldap;
     DbToLdapWorker worker;
 
     @Before
     public void setUp() throws Exception {
         groupDirty = new Group.Builder().name("groupDirty")
-                .dateModified(new Date(2000))
+                .dateModified(new Date(1, 1, 1))
                 .members("a", "b")
                 .build();
         groupClean = new Group.Builder().name("groupClean")
-                .dateModified(new Date(1000))
+                .dateModified(new Date(2, 1, 1))
                 .dateSynchronizedFromModified()
                 .members("ala", "kot")
                 .build();
 
-        daoMocker = new GroupDaoMocker();
         ldap = createLdapMock();
-        worker = new DbToLdapWorker(daoMocker.mock(), ldap);
+        worker = new DbToLdapWorker(dao, ldap);
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        for(Group group : dao.findAll()) {
+            dao.delete(group.getName());
+        }
     }
 
     private Ldap createLdapMock() {
@@ -46,16 +61,21 @@ public class DbToLdapWorkerTest {
 
     @Test
     public void shouldOnSuccessDateSynchronizedBeEqualToModified() throws Exception {
-        daoMocker.setEntities(groupDirty);
+        setEntities(groupDirty);
 
         worker.run();
 
-        MatcherAssert.assertThat(groupDirty.getDateSynchronized(), Matchers.equalTo(groupDirty.getDateModified()));
+        Group synchronizedGroupDirty =  dao.getByName(groupDirty.getName());
+        // unfortunately date from Dao is a Timestamp instance and matcher fails comparing Date vs Timestamp
+        Date dateSynchronized = synchronizedGroupDirty.getDateSynchronized()!=null
+                ? new Date(synchronizedGroupDirty.getDateSynchronized().getTime())
+                : null;
+        MatcherAssert.assertThat(dateSynchronized, Matchers.equalTo(groupDirty.getDateModified()));
     }
 
     @Test
     public void shouldOnFailerDateSynchronizedBeUntouched() throws Exception {
-        daoMocker.setEntities(groupDirty);
+        setEntities(groupDirty);
         Mockito.when(ldap.setMembers(Mockito.anyString(), Mockito.anyCollection())).thenReturn(false);
         Date oldDateSynchronized = groupDirty.getDateSynchronized();
 
@@ -66,7 +86,7 @@ public class DbToLdapWorkerTest {
 
     @Test
     public void shouldCallSetMembersForDirtyGroups() throws Exception {
-        daoMocker.setEntities(groupDirty);
+        setEntities(groupDirty);
 
         worker.run();
 
@@ -75,10 +95,16 @@ public class DbToLdapWorkerTest {
 
     @Test
     public void shouldNotCallSetMembersForCleanGroups() throws Exception {
-        daoMocker.setEntities(groupClean);
+        setEntities(groupClean);
 
         worker.run();
 
         Mockito.verify(ldap, Mockito.times(0)).setMembers(Mockito.eq(groupClean.getName()), Mockito.anyCollection());
+    }
+
+    public void setEntities(Group... entities) {
+        for (Group entity : entities) {
+            dao.create(entity);
+        }
     }
 }
