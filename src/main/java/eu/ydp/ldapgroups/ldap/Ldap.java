@@ -24,38 +24,35 @@ public class Ldap {
 
     public Collection<String> getMembers(String groupName) {
         try {
-            Collection<String> members = null;
-            Attributes group = getGroup(groupName);
-            if (group!=null) {
-                List<String> memberDns = getValuesForEntry(group, ATTR_MEMBER);
-                members = getValueForEntriesWithAttr(ATTR_DISTINGUISHED_NAME, memberDns,
-                        ATTR_SAM_ACCOUNT_NAME);
-            }
-            return members!=null ? new LinkedHashSet<String>(members) : null;
+            Attributes group = getExistingGroup(groupName);
+            List<String> memberDns = getValues(group, ATTR_MEMBER);
+            Map<String, String> members = searchValuesWithAttr(ATTR_DISTINGUISHED_NAME, memberDns,
+                    ATTR_SAM_ACCOUNT_NAME);
+            return new LinkedHashSet<String>(members.values());
         } catch (NamingException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public boolean setMembers(String groupName, Collection<String> members) {
+    public void setMembers(String groupName, Collection<String> members)
+            throws GroupNotFoundException, MemberNotFoundException {
         try {
-            Attributes group = getGroup(groupName);
-            if (group==null) {
-                return false;
-            }
-            String groupDn = group.get(ATTR_DISTINGUISHED_NAME).get().toString();
-            Collection<String> memberDns = getValueForEntriesWithAttr(
+            Attributes group = getExistingGroup(groupName);
+            String groupDn = getValue(group, ATTR_DISTINGUISHED_NAME);
+            Map<String, String> memberDns = searchValuesWithAttr(
                     ATTR_SAM_ACCOUNT_NAME, members,
                     ATTR_DISTINGUISHED_NAME);
+            if (!memberDns.keySet().containsAll(members)) {
+                throw new MemberNotFoundException(members, memberDns.keySet());
+            }
+
             BasicAttribute memberAttr = new BasicAttribute(ATTR_MEMBER);
-            for(String memberDn : memberDns) {
+            for(String memberDn : memberDns.values()) {
                 memberAttr.add(memberDn);
             }
             ModificationItem removeItem = new ModificationItem(DirContext.REMOVE_ATTRIBUTE, new BasicAttribute(ATTR_MEMBER));
             ModificationItem replaceItem = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, memberAttr);
             ldapTemplate.modifyAttributes(groupDn, new ModificationItem[] {removeItem, replaceItem});
-
-            return true;
         } catch (NamingException e) {
             throw new RuntimeException(e);
         }
@@ -74,7 +71,15 @@ public class Ldap {
         return searchFirst(filter);
     }
 
-    private List<String> getValuesForEntry(Attributes entry, String returnedAttrName) throws NamingException {
+    private Attributes getExistingGroup(String groupName) throws GroupNotFoundException {
+        Attributes group = getGroup(groupName);
+        if (group==null) {
+            throw new GroupNotFoundException(groupName);
+        }
+        return group;
+    }
+
+    private List<String> getValues(Attributes entry, String returnedAttrName) throws NamingException {
         List<String> values = new ArrayList<String>();
 
         Attribute attribute = entry.get(returnedAttrName);
@@ -107,23 +112,31 @@ public class Ldap {
         return sb.toString();
     }
 
-    private Map<Attributes, String> getValueForEntries(List<Attributes> entries, String returnedAttrName) throws NamingException {
-        Map<Attributes, String> dnValueMap = new LinkedHashMap<Attributes, String>();
+    private Map<String, String> getKeyValueForEntries(List<Attributes> entries,
+                                                      String keyAttrName, String valueAttrName)
+            throws NamingException {
+        Map<String, String> dnValueMap = new LinkedHashMap<String, String>();
 
         for(Attributes entry : entries) {
-            Attribute attribute = entry.get(returnedAttrName);
-            String attributeValue = attribute.get().toString();
-            dnValueMap.put(entry, attributeValue);
+            String key = getValue(entry, keyAttrName);
+            String value = getValue(entry, valueAttrName);
+            dnValueMap.put(key, value);
         }
 
         return dnValueMap;
     }
 
-    private Collection<String> getValueForEntriesWithAttr(String withAttrName,
-                                                          Collection<String> withAttrValues,
-                                                          String returnedAttrName) throws NamingException {
+    private String getValue(Attributes entry, String attrName) throws NamingException {
+        Attribute attribute = entry.get(attrName);
+        String attributeValue = attribute.get().toString();
+        return attributeValue;
+    }
+
+    private Map<String, String> searchValuesWithAttr(String withAttrName,
+                                                     Collection<String> withAttrValues,
+                                                     String returnedAttrName) throws NamingException {
         List<Attributes> entries = searchByAttr(withAttrName, withAttrValues);
-        return getValueForEntries(entries, returnedAttrName).values();
+        return getKeyValueForEntries(entries, withAttrName, returnedAttrName);
     }
 
     private List<Attributes> search(String filter) {
