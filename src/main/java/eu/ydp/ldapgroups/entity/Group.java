@@ -1,7 +1,8 @@
 package eu.ydp.ldapgroups.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import javax.persistence.*;
 import java.util.*;
@@ -20,7 +21,7 @@ public class Group implements Cloneable {
     @Column(name = "name", nullable = false)
     String name;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "group_member", joinColumns = @JoinColumn(name = "id"))
     @Column(name = "member")
     Set<String> members;
@@ -33,6 +34,12 @@ public class Group implements Cloneable {
 
     @Column(name = "date_synchronized", nullable = true)
     Date dateSynchronized;
+
+    @Column(name = "sync_error", nullable = true)
+    SyncError syncError;
+
+    @Column(name = "sync_description", nullable = true)
+    String syncDescription;
 
     public Group(Long id, String name, Set<String> members, Date dateModified, Date dateSynchronized) {
         this.id = id;
@@ -79,13 +86,32 @@ public class Group implements Cloneable {
         this.dateSynchronized = dateSynchronized;
     }
 
+    public SyncError getSyncError() {
+        return syncError;
+    }
+
+    public void setSyncError(SyncError syncError) {
+        this.syncError = syncError;
+    }
+
+    public String getSyncDescription() {
+        return syncDescription;
+    }
+
+    public void setSyncDescription(String syncDescription) {
+        this.syncDescription = syncDescription;
+    }
+
     @Override
     public String toString() {
         return "Group{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
-                ", modified='" + (dateModified!=null ? dateModified.getTime() : null) + '\'' +
-                ", synchronized='" + (dateSynchronized!=null ? dateSynchronized.getTime() : null) + '\'' +
+                ", members="+members +
+                ", dateModified='" + (dateModified!=null ? dateModified.getTime() : null) + '\'' +
+                ", dateSynchronized='" + (dateSynchronized!=null ? dateSynchronized.getTime() : null) + '\'' +
+                ", syncError=" + syncError +
+                ", syncDescription='" + syncDescription + '\'' +
                 '}';
     }
 
@@ -146,6 +172,13 @@ public class Group implements Cloneable {
 
         public Builder id(long id) {
             group.id = id;
+            return this;
+        }
+
+        public Builder sync(Date dateSynchronized, SyncError syncError, String syncDescription) {
+            group.setDateSynchronized(dateSynchronized);
+            group.setSyncError(syncError);
+            group.setSyncDescription(syncDescription);
             return this;
         }
 

@@ -29,7 +29,7 @@ public class LdapGroupsServiceTest {
     @Before
     public void setUp() throws Exception {
         configuration = loadValidatedConfiguration("LdapGroupsServiceTest-config.yaml");
-        service = new LdapGroupsService();
+        service = new LdapGroupsService(false);
         bootstrap = new Bootstrap(service);
     }
 

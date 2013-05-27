@@ -67,11 +67,14 @@ public class GroupTest {
 
     @Test
     public void jsonShouldConvertToString() throws Exception {
-        Group group = new Group.Builder().name("group1").dateModified(0).dateSynchronizedFromModified().build();
+        Group group = new Group.Builder().name("group1")
+                .dateModified(0)
+                .sync(new Date(0), SyncError.GROUP_NOT_FOUND, "group not found")
+                .build();
 
         MatcherAssert.assertThat(
                 asJson(group),
-                Matchers.equalTo("{\"name\":\"group1\",\"members\":[],\"dateCreated\":0,\"dateModified\":0,\"dateSynchronized\":0}"));
+                Matchers.equalTo("{\"name\":\"group1\",\"members\":[],\"dateCreated\":0,\"dateModified\":0,\"dateSynchronized\":0,\"syncError\":\"GROUP_NOT_FOUND\",\"syncDescription\":\"group not found\"}"));
     }
 
     protected <T> T jsonUnjson(T o) throws IOException {

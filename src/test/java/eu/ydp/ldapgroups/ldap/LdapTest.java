@@ -1,5 +1,6 @@
 package eu.ydp.ldapgroups.ldap;
 
+import org.hamcrest.Matcher;
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.springframework.ldap.core.DistinguishedName;
@@ -18,6 +19,7 @@ import java.util.Collections;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
@@ -65,11 +67,9 @@ public class LdapTest {
         ));
     }
 
-    @Test
-    public void shouldGetMembersReturnNullIfGroupNameDoesntExist() throws Exception {
-        Collection<String> members = ldap.getMembers("bxvcnmzxbcvdhuierhtifwebnrifwbnei");
-
-        assertThat(members, nullValue());
+    @Test(expected = GroupNotFoundException.class)
+    public void getMembersShouldThrowExceptionIfGroupNameDoesntExist() throws Exception {
+        ldap.getMembers("bxvcnmzxbcvdhuierhtifwebnrifwbnei");
     }
 
     @Test
@@ -108,11 +108,41 @@ public class LdapTest {
         assertThat(members, containsInAnyOrder());
     }
 
-    @Test
-    public void shouldSetMembersReturnFalseIfGroupNameDoesntExist() throws Exception {
-        boolean result = ldap.setMembers("bxvcnmzxbcvdhuierhtifwebnrifwbnei", null);
+    @Test(expected = GroupNotFoundException.class)
+    public void setMembersShouldThrowExceptionIfGroupNameDoesntExist() throws Exception {
+        ldap.setMembers("bxvcnmzxbcvdhuierhtifwebnrifwbnei", null);
+    }
 
-        assertThat(result, equalTo(false));
+    @Test(expected = MemberNotFoundException.class)
+    public void setMembersShouldThrowExceptionIfMemberDoesntExist() throws Exception {
+        String nonExistingLogin = "bxvcnmzxbcvdhuierhtifwebnrifwbnei";
+        String groupName = createGroup(USER1_DN);
+
+        ldap.setMembers(groupName, Arrays.asList(USER1_LOGIN, nonExistingLogin));
+    }
+
+    @Test
+    public void setMembersShouldThrowExceptionWithLoginIfMemberDoesntExist() throws Exception {
+        String nonExistingLogin = "bxvcnmzxbcvdhuierhtifwebnrifwbnei";
+        String groupName = createGroup(USER1_DN);
+
+        try {
+            ldap.setMembers(groupName, Arrays.asList(USER1_LOGIN, nonExistingLogin));
+            fail();
+        } catch (MemberNotFoundException e) {
+            assertThat(e.getMembersNotFound(), containsInAnyOrder(nonExistingLogin));
+        }
+    }
+
+    @Test
+    public void setMembersShouldIgnoreMemberLoginCase() throws Exception {
+        String groupName = createGroup(USER1_DN);
+
+        try {
+            ldap.setMembers(groupName, Arrays.asList(USER1_LOGIN.toUpperCase()));
+        } catch (MemberNotFoundException e) {
+            assertThat((Collection)e.getMembersNotFound(), empty());
+        }
     }
 
     private String createGroup(String... memberDns) {

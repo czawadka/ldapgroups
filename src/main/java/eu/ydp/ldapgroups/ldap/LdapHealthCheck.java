@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Value;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import java.util.Collection;
 import java.util.Collections;
 
 @Named
@@ -21,13 +22,26 @@ public class LdapHealthCheck extends HealthCheck {
 
     @Override
     protected Result check() throws Exception {
+
+        if (validationGroup==null || validationGroup.trim().length()==0)
+            return Result.unhealthy("group name (validationGroup variable) not set, unable to check health");
+
+        Collection<String> members;
         try {
-            if (validationGroup==null || validationGroup.trim().length()==0)
-                return Result.unhealthy("group name (validationGroup variable) not set, unable to check health");
+            members = ldap.getMembers(validationGroup);
+        } catch (Exception e) {
+            return Result.unhealthy("Error getting (READ) members of group "+validationGroup+": %s", e.getMessage());
+        }
+        if (members==null)
+            return Result.unhealthy("Validation group "+validationGroup+" doesn't exist");
+
+        try {
             ldap.setMembers(validationGroup, Collections.<String>emptyList());
         } catch (Throwable e) {
-            return Result.unhealthy(e);
+            return Result.unhealthy("Error setting (WRITE) members of group "+validationGroup+": %s", e.getMessage());
         }
+
         return Result.healthy();
+
     }
 }
