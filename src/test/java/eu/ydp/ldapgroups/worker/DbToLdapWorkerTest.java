@@ -2,7 +2,10 @@ package eu.ydp.ldapgroups.worker;
 
 import eu.ydp.ldapgroups.dao.GroupDao;
 import eu.ydp.ldapgroups.entity.Group;
+import eu.ydp.ldapgroups.entity.SyncError;
+import eu.ydp.ldapgroups.ldap.GroupNotFoundException;
 import eu.ydp.ldapgroups.ldap.Ldap;
+import eu.ydp.ldapgroups.ldap.MemberNotFoundException;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
 import org.junit.After;
@@ -15,6 +18,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.inject.Inject;
 import java.sql.Timestamp;
+import java.util.Arrays;
 import java.util.Date;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -36,8 +40,8 @@ public class DbToLdapWorkerTest {
                 .build();
         groupClean = new Group.Builder().name("groupClean")
                 .dateModified(new Date(2, 1, 1))
-                .dateSynchronizedFromModified()
                 .members("ala", "kot")
+                .sync(new Date(3, 1, 1), SyncError.OK, "")
                 .build();
 
         ldap = createLdapMock();
@@ -54,13 +58,11 @@ public class DbToLdapWorkerTest {
     private Ldap createLdapMock() {
         Ldap mock = Mockito.mock(Ldap.class);
 
-        Mockito.when(mock.setMembers(Mockito.anyString(), Mockito.anyCollection())).thenReturn(true);
-
         return mock;
     }
 
     @Test
-    public void shouldOnSuccessDateSynchronizedBeEqualToModified() throws Exception {
+    public void dateSynchronizedShouldBeGreaterThenModifiedIfSuccess() throws Exception {
         setEntities(groupDirty);
 
         worker.run();
@@ -70,18 +72,47 @@ public class DbToLdapWorkerTest {
         Date dateSynchronized = synchronizedGroupDirty.getDateSynchronized()!=null
                 ? new Date(synchronizedGroupDirty.getDateSynchronized().getTime())
                 : null;
-        MatcherAssert.assertThat(dateSynchronized, Matchers.equalTo(groupDirty.getDateModified()));
+        MatcherAssert.assertThat(dateSynchronized, Matchers.greaterThanOrEqualTo(groupDirty.getDateModified()));
     }
 
     @Test
-    public void shouldOnFailerDateSynchronizedBeUntouched() throws Exception {
+    public void syncErrorShouldBeOkIfSuccess() throws Exception {
+        Group groupDirty = this.groupDirty;
         setEntities(groupDirty);
-        Mockito.when(ldap.setMembers(Mockito.anyString(), Mockito.anyCollection())).thenReturn(false);
-        Date oldDateSynchronized = groupDirty.getDateSynchronized();
 
         worker.run();
 
-        MatcherAssert.assertThat(groupDirty.getDateSynchronized(), Matchers.equalTo(oldDateSynchronized));
+        groupDirty = dao.getByName(groupDirty.getName());
+        MatcherAssert.assertThat(groupDirty.getSyncError(), Matchers.equalTo(SyncError.OK));
+        MatcherAssert.assertThat(groupDirty.getSyncDescription(), Matchers.equalTo(""));
+    }
+
+    @Test
+    public void syncErrorShouldBeGroupNotFoundIfGroupDoesntExist() throws Exception {
+        Group groupDirty = this.groupDirty;
+        setEntities(groupDirty);
+        Mockito.doThrow(new GroupNotFoundException(groupDirty.getName()))
+                .when(ldap).setMembers(Mockito.anyString(), Mockito.anyCollection());
+
+        worker.run();
+
+        groupDirty = dao.getByName(groupDirty.getName());
+        MatcherAssert.assertThat(groupDirty.getSyncError(), Matchers.equalTo(SyncError.GROUP_NOT_FOUND));
+        MatcherAssert.assertThat(groupDirty.getSyncDescription(), Matchers.equalTo("group not found"));
+    }
+
+    @Test
+    public void syncErrorShouldBeMemberNotFoundIfMemberDoesntExist() throws Exception {
+        Group groupDirty = this.groupDirty;
+        setEntities(groupDirty);
+        Mockito.doThrow(new MemberNotFoundException(groupDirty.getMembers()))
+                .when(ldap).setMembers(Mockito.anyString(), Mockito.anyCollection());
+
+        worker.run();
+
+        groupDirty = dao.getByName(groupDirty.getName());
+        MatcherAssert.assertThat(groupDirty.getSyncError(), Matchers.equalTo(SyncError.MEMBER_NOT_FOUND));
+        MatcherAssert.assertThat(groupDirty.getSyncDescription(), Matchers.equalTo(String.format("members %s not found", groupDirty.getMembers().toString())));
     }
 
     @Test
