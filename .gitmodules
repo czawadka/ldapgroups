@@ -1,0 +1,3 @@
+[submodule "ldapgroups.js"]
+	path = ldapgroups.js
+	url = https://github.com/czawadka/ldapgroups.js.git

@@ -12,7 +12,9 @@
             http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd
             ">
 
+
     <context:component-scan base-package="eu.ydp.ldapgroups.dao"/>
+    <context:component-scan base-package="eu.ydp.ldapgroups.resources"/>
 
     <bean id="sessionFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
         <property name="dataSource" ref="dataSource" />

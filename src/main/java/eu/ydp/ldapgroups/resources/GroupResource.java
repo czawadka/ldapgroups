@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Set;
 
 @Named
-@Path("/rest/group")
+@Path("/groups")
 @Produces(MediaType.APPLICATION_JSON)
 public class GroupResource {
     GroupDao groupDao;
@@ -39,26 +39,34 @@ public class GroupResource {
         return getByNameOrNotFound(groupName);
     }
 
-    @POST
-    @Path("/{groupName}/members")
-    public Group updateMembers(@PathParam("groupName") String groupName, Set<String> members) {
-        Group group = getByNameOrNotFound(groupName);
-        Group mergeGroup = new Group.Builder(group).members(members).dateModified().build();
-        return groupDao.update(mergeGroup);
+    @PUT
+    @Path("/{groupName}")
+    public Group setGroup(@PathParam("groupName") String groupName, Group group) {
+        Group up2dateGroup = groupDao.getByName(groupName);
+        if (up2dateGroup==null) {
+            return createGroup(group);
+        } else {
+            Group mergeGroup = new Group.Builder(up2dateGroup).members(group.getMembers()).dateModified().build();
+            return groupDao.update(mergeGroup);
+        }
     }
 
     @DELETE
     @Path("/{groupName}")
     public void deleteGroup(@PathParam("groupName") String groupName) {
-        Group group = getByNameOrNotFound(groupName);
-        groupDao.delete(group);
+        if (!groupDao.delete(groupName)) {
+            throwNotFound(groupName);
+        }
     }
 
     protected Group getByNameOrNotFound(String groupName) {
         Group group = groupDao.getByName(groupName);
         if (group==null)
-            throw new NotFoundException("Group '"+ groupName +"' not found");
+            throwNotFound(groupName);
         return group;
     }
 
+    protected void throwNotFound(String groupName) throws NotFoundException {
+        throw new NotFoundException("Group '"+ groupName +"' not found");
+    }
 }

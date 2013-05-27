@@ -11,6 +11,7 @@ import com.yammer.dropwizard.config.Environment;
 import com.yammer.dropwizard.json.ObjectMapperFactory;
 import com.yammer.dropwizard.validation.Validator;
 import eu.ydp.ldapgroups.resources.GroupResource;
+import eu.ydp.ldapgroups.worker.DbToLdapManager;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Matchers;
@@ -28,7 +29,7 @@ public class LdapGroupsServiceTest {
     @Before
     public void setUp() throws Exception {
         configuration = loadValidatedConfiguration("LdapGroupsServiceTest-config.yaml");
-        service = new LdapGroupsService();
+        service = new LdapGroupsService(false);
         bootstrap = new Bootstrap(service);
     }
 
@@ -39,6 +40,15 @@ public class LdapGroupsServiceTest {
         service.run(configuration, environment);
 
         Mockito.verify(environment).addResource(Matchers.any(GroupResource.class));
+    }
+
+    @Test
+    public void shouldAddDbToLdapManager() throws Exception {
+        service.initialize(bootstrap);
+        bootstrap.runWithBundles(configuration, environment);
+        service.run(configuration, environment);
+
+        Mockito.verify(environment).manage(Matchers.any(DbToLdapManager.class));
     }
 
     protected LdapGroupsConfiguration loadValidatedConfiguration(String location) throws IOException, ConfigurationException {
@@ -73,6 +83,7 @@ public class LdapGroupsServiceTest {
 
         return config;
     }
+
     protected void validateConfiguration(LdapGroupsConfiguration config, String locationInfo) throws ConfigurationException {
         Validator validator = new Validator();
         final ImmutableList<String> errors = validator.validate(config);
