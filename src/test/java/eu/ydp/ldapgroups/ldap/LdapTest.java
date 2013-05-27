@@ -1,5 +1,6 @@
 package eu.ydp.ldapgroups.ldap;
 
+import org.hamcrest.Matcher;
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.springframework.ldap.core.DistinguishedName;
@@ -130,6 +131,17 @@ public class LdapTest {
             fail();
         } catch (MemberNotFoundException e) {
             assertThat(e.getMembersNotFound(), containsInAnyOrder(nonExistingLogin));
+        }
+    }
+
+    @Test
+    public void setMembersShouldIgnoreMemberLoginCase() throws Exception {
+        String groupName = createGroup(USER1_DN);
+
+        try {
+            ldap.setMembers(groupName, Arrays.asList(USER1_LOGIN.toUpperCase()));
+        } catch (MemberNotFoundException e) {
+            assertThat((Collection)e.getMembersNotFound(), empty());
         }
     }
 

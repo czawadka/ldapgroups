@@ -42,8 +42,9 @@ public class Ldap {
             Map<String, String> memberDns = searchValuesWithAttr(
                     ATTR_SAM_ACCOUNT_NAME, members,
                     ATTR_DISTINGUISHED_NAME);
-            if (!memberDns.keySet().containsAll(members)) {
-                throw new MemberNotFoundException(members, memberDns.keySet());
+            Collection<String> notFoundMembers = caseInsensitiveSubtraction(members, memberDns.keySet());
+            if (!notFoundMembers.isEmpty()) {
+                throw new MemberNotFoundException(notFoundMembers);
             }
 
             BasicAttribute memberAttr = new BasicAttribute(ATTR_MEMBER);
@@ -151,12 +152,6 @@ public class Ldap {
         return null;
     }
 
-    private Set<String> createCaseInsensitiveSet(Collection<String> values) {
-        Set<String> newValues = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
-        newValues.addAll(values);
-        return newValues;
-    }
-
     static class AttributesAttributesMapper implements AttributesMapper {
         static public AttributesAttributesMapper INSTANCE = new AttributesAttributesMapper();
 
@@ -166,4 +161,18 @@ public class Ldap {
         }
     }
 
+    static public Collection<String> caseInsensitiveSubtraction(Collection<String> minuend, Collection<String> subtrahend) {
+        Collection<String> diff = new LinkedList<String>(minuend);
+        Collection<String> caseInsensitiveSubtrahend = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
+        caseInsensitiveSubtrahend.addAll(subtrahend);
+
+        Iterator<String> it = diff.iterator();
+        while (it.hasNext()) {
+            String item = it.next();
+            if (caseInsensitiveSubtrahend.contains(item)) {
+                it.remove();
+            }
+        }
+        return diff;
+    }
 }
