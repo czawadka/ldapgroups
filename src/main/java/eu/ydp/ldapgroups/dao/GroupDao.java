@@ -1,6 +1,7 @@
 package eu.ydp.ldapgroups.dao;
 
 import eu.ydp.ldapgroups.entity.Group;
+import eu.ydp.ldapgroups.entity.SyncError;
 import org.hibernate.Criteria;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
@@ -56,18 +57,23 @@ public class GroupDao extends AbstractDao<Group> {
         return criteria()
                 .add(Restrictions.or(
                         Restrictions.isNull("dateSynchronized"),
-                        Restrictions.ltProperty("dateSynchronized", "dateModified")
+                        Restrictions.ltProperty("dateSynchronized", "dateModified"),
+                        Restrictions.isNull("syncError"),
+                        Restrictions.ne("syncError", SyncError.OK)
                 ))
                 .addOrder(Order.asc("dateModified"))
                 ;
     }
 
-    public boolean updateDateSynchronized(String name, Date dateSynchronized) {
+    public boolean updateSynchronized(String name, Date dateSynchronized,
+                                          SyncError syncError, String syncDescription) {
         Group group = getByName(name);
         if (group==null) {
             return false;
         }
         group.setDateSynchronized(dateSynchronized);
+        group.setSyncError(syncError);
+        group.setSyncDescription(syncDescription);
         merge(group);
         return true;
     }
