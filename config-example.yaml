@@ -1,11 +1,10 @@
-db:
-  driverClass: "org.h2.Driver"
-  url: "jdbc:h2:mem:db1;DB_CLOSE_DELAY=-1"
-  user: ""
-  properties:
-    "hibernate.dialect": "org.hibernate.dialect.H2Dialect"
-    "hibernate.hbm2ddl.auto": "update"
-    "hibernate.show_sql": true
-    "hibernate.format_sql": true
 worker:
-  period: 5s
+  period: 5m # run every 5 minutes, 30s = run every 30 seconds
+ldap:
+  url: "ldap://dc4:389"
+  baseDn: "DC=intranet,DC=ydp"
+  user: "timemanager@intranet.ydp"
+  password: "PASSWORD"
+  validationGroup: StaticGroup # group which members are reset (read then written) to check write permission
+logging:
+  level: INFO
